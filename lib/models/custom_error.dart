@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 class CustomError extends Equatable {
   final String errMsg;
   CustomError({
-    this.errMsg = '',
+    this.errMsg = ' ',
   });
 
   @override
