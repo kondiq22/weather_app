@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:weather_app/cubits/weather/weather_cubit.dart';
 import 'package:weather_app/pages/search_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:weather_app/services/weather_api_services.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -35,9 +34,53 @@ class _HomePageState extends State<HomePage> {
               icon: Icon(Icons.search))
         ],
       ),
-      body: Center(
-        child: Text('Home'),
-      ),
+      body: _showWeather(),
+    );
+  }
+
+  Widget _showWeather() {
+    return BlocConsumer<WeatherCubit, WeatherState>(
+      listener: (context, state) {
+        if (state.status == WeatherStatus.error) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Text(state.error.errMsg),
+              );
+            },
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state.status == WeatherStatus.initial) {
+          return Center(
+            child: Text(
+              'Select a city',
+              style: TextStyle(fontSize: 20.0),
+            ),
+          );
+        }
+        if (state.status == WeatherStatus.loading) {
+          return Center(child: CircularProgressIndicator());
+        }
+        if (state.status == WeatherStatus.error && state.weather.title == '') {
+          return Center(
+            child: Text(
+              'Select a city',
+              style: TextStyle(fontSize: 20.0),
+            ),
+          );
+        }
+        return Center(
+          child: Container(
+            child: Text(
+              state.weather.title,
+              style: TextStyle(fontSize: 18.0),
+            ),
+          ),
+        );
+      },
     );
   }
 }
