@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:weather_app/cubits/weather/weather_cubit.dart';
 import 'package:weather_app/pages/search_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:weather_app/pages/settings.dart';
 
 import '../constants/constants.dart';
+import '../cubits/weather/temp_settings/temp_settings_cubit.dart';
 import '../widgets/error_dialog.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,18 +25,34 @@ class _HomePageState extends State<HomePage> {
         title: Text('Weather'),
         actions: [
           IconButton(
-              onPressed: () async {
-                _city = await Navigator.push(context, MaterialPageRoute(
+            onPressed: () async {
+              _city = await Navigator.push(
+                context,
+                MaterialPageRoute(
                   builder: ((context) {
                     return SearchPage();
                   }),
-                ));
-                print('city: $_city');
-                if (_city != null) {
-                  context.read<WeatherCubit>().fetchWeather(_city!);
-                }
+                ),
+              );
+              print('city: $_city');
+              if (_city != null) {
+                context.read<WeatherCubit>().fetchWeather(_city!);
+              }
+            },
+            icon: Icon(Icons.search),
+          ),
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: ((context) {
+                      return SettingsPage();
+                    }),
+                  ),
+                );
               },
-              icon: Icon(Icons.search))
+              icon: Icon(Icons.settings)),
         ],
       ),
       body: _showWeather(),
@@ -42,7 +60,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   String showTemperature(double temperature) {
-    return temperature.toStringAsFixed(2) + '°C';
+    final tempUnit = context.watch<TempSettingsCubit>().state.tempUnit;
+    if (tempUnit == TempUnit.fahrenheit) {
+      return ((temperature * 9 / 5) + 32).toStringAsFixed(1) + '°F';
+    }
+    return temperature.toStringAsFixed(1) + '°C';
   }
 
   Widget _showIcon(String abbr) {
