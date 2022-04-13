@@ -5,6 +5,7 @@ import 'package:weather_app/pages/home_page.dart';
 import 'package:weather_app/services/weather_api_services.dart';
 import 'package:http/http.dart' as http;
 
+import 'cubits/weather/theme/theme_cubit.dart';
 import 'cubits/weather/weather_cubit.dart';
 import 'repositories/weather_repository.dart';
 
@@ -23,25 +24,34 @@ class MyApp extends StatelessWidget {
         httpClient: http.Client(),
       )),
       child: MultiBlocProvider(
-        providers: [
-          BlocProvider<WeatherCubit>(
-            create: (context) => WeatherCubit(
-              weatherRepository: context.read<WeatherRepository>(),
+          providers: [
+            BlocProvider<WeatherCubit>(
+              create: (context) => WeatherCubit(
+                weatherRepository: context.read<WeatherRepository>(),
+              ),
             ),
-          ),
-          BlocProvider<TempSettingsCubit>(
-            create: (context) => TempSettingsCubit(),
-          )
-        ],
-        child: MaterialApp(
-          title: 'Weather APP',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            primarySwatch: Colors.blue,
-          ),
-          home: HomePage(),
-        ),
-      ),
+            BlocProvider<TempSettingsCubit>(
+              create: (context) => TempSettingsCubit(),
+            ),
+            BlocProvider<ThemeCubit>(
+              create: (context) => ThemeCubit(
+                weatherCubit: context.read<WeatherCubit>(),
+              ),
+            )
+          ],
+          child: BlocBuilder<ThemeCubit, ThemeState>(
+            builder: (context, state) {
+              return MaterialApp(
+                title: 'Weather APP',
+                debugShowCheckedModeBanner: false,
+                theme:
+                    context.read<ThemeCubit>().state.appTheme == AppTheme.light
+                        ? ThemeData.light()
+                        : ThemeData.dark(),
+                home: HomePage(),
+              );
+            },
+          )),
     );
   }
 }
