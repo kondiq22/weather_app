@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:weather_app/cubits/weather/temp_settings/temp_settings_cubit.dart';
 import 'package:weather_app/pages/home_page.dart';
 import 'package:weather_app/services/weather_api_services.dart';
 import 'package:http/http.dart' as http;
 
-import 'cubits/weather/theme/theme_cubit.dart';
-import 'cubits/weather/weather_cubit.dart';
+import 'blocs/blocs.dart';
+
 import 'repositories/weather_repository.dart';
 
 void main() {
@@ -25,27 +24,27 @@ class MyApp extends StatelessWidget {
       )),
       child: MultiBlocProvider(
           providers: [
-            BlocProvider<WeatherCubit>(
-              create: (context) => WeatherCubit(
+            BlocProvider<WeatherBloc>(
+              create: (context) => WeatherBloc(
                 weatherRepository: context.read<WeatherRepository>(),
               ),
             ),
-            BlocProvider<TempSettingsCubit>(
-              create: (context) => TempSettingsCubit(),
+            BlocProvider<TempSettingsBloc>(
+              create: (context) => TempSettingsBloc(),
             ),
-            BlocProvider<ThemeCubit>(
-              create: (context) => ThemeCubit(
-                weatherCubit: context.read<WeatherCubit>(),
+            BlocProvider<ThemeBloc>(
+              create: (context) => ThemeBloc(
+                weatherBloc: context.read<WeatherBloc>(),
               ),
-            )
+            ),
           ],
-          child: BlocBuilder<ThemeCubit, ThemeState>(
+          child: BlocBuilder<ThemeBloc, ThemeState>(
             builder: (context, state) {
               return MaterialApp(
                 title: 'Weather APP',
                 debugShowCheckedModeBanner: false,
                 theme:
-                    context.read<ThemeCubit>().state.appTheme == AppTheme.light
+                    context.read<ThemeBloc>().state.appTheme == AppTheme.light
                         ? ThemeData.light()
                         : ThemeData.dark(),
                 home: HomePage(),
